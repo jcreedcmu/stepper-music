@@ -1,10 +1,34 @@
+#define DEBUG 0
+
+// Using this stepper motor:
+// https://www.jameco.com/webapp/wcs/stores/servlet/Product_10001_10001_2138812_-1
+// https://www.jameco.com/Jameco/Products/ProdDS/2138812.pdf
+
+// The data sheet says to do
+//     1 2 3 4
+// YEL - -
+// RED     - -
+// BLK   - -
+// BLU -     -
+
+// (where "-" is ground and " " is +7V, and orange wire is always tied to +7V)
+// but that didn't seem to work for me; I needed to do
+//     1 2 3 4
+// YEL -     -
+// RED - -
+// BLK   - -
+// BLU     - -
+//
+// instead, which seems at least consistent with the diagram on the
+// data sheet, since yellow and black are never activated together,
+// nor are red and blue.
+
 
 int LED = 13;
 int BLUE = 7;
 int BLACK = 6;
 int RED = 5;
 int YELLOW = 4;
-int BUTTON = 10;
 
 void setup() {
   Serial.begin(9600);
@@ -13,9 +37,7 @@ void setup() {
   pinMode(BLACK, OUTPUT);
   pinMode(RED, OUTPUT);
   pinMode(YELLOW, OUTPUT);
-  pinMode(BUTTON, INPUT);
 }
-
 
 void send(int y, int r, int k, int b, int pause) {
   if (pause) {
@@ -47,13 +69,19 @@ void loop() {
   while(1) {
 
     while (Serial.available() > 0) {
+      // read in a line of text, and use its numeric value (or zero,
+      // if atoi fails to find a parseable number) to set 'pause', a
+      // microsecond delay on top of the 3ms pulse we spend powering
+      // the motor. When pause is zero, we just don't run the motor.
       int bytesRead = Serial.readBytesUntil('\n', buf, sizeof(buf));
       if (bytesRead < sizeof(buf))
         buf[bytesRead] = 0;
       pause = atoi(buf);
+#if DEBUG
       Serial.print(bytesRead, DEC);
       Serial.write(" - ");
       Serial.println(pause, DEC);
+#endif
     }
 
     send(values[state][0],
