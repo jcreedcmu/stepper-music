@@ -1,3 +1,7 @@
+// With the arduino sketch running, I did:
+// node music.js > /dev/cu.usbmodem1411
+
+// somehow the first note doesn't happen? Something about serial buffers maybe?
 const notes = [0, 0, 2, 4, 5, 7, 9, 11, 12, -1, 12, 11, 9, 7, 5, 4, 2, 0, -1, -1, -1,
                0, 4, 7, 12, 7, 4, 0];
 
